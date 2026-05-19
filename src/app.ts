@@ -19,14 +19,12 @@ const app: express.Application = express();
 app.disable("x-powered-by");
 
 app.use(helmet() as RequestHandler);
-app.use(requestId);
 app.use(
   pinoHttp({
     logger,
     genReqId: (req) => (req as express.Request).id,
   }) as unknown as RequestHandler
 );
-app.use(rateLimiter);
 app.use(express.json({ limit: envs.BODY_LIMIT }));
 app.use(express.urlencoded({ extended: false, limit: envs.BODY_LIMIT }));
 
@@ -34,5 +32,7 @@ app.use("/api/v1", routes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
+app.use(requestId);
+app.use(rateLimiter);
 
 export default app;
