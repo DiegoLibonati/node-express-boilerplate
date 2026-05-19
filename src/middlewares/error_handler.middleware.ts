@@ -1,7 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { CODES_ERROR } from "@/constants/codes.constant";
-import { MESSAGES_ERROR } from "@/constants/messages.constant";
+import { getExceptionMessage } from "@/helpers/get_exception_message.helper";
+
+import { logger } from "@/configs/logger.config";
 
 export const errorHandler = (
   err: Error,
@@ -9,6 +10,11 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  console.error(err.stack ?? err.message);
-  res.status(500).json({ code: CODES_ERROR.generic, message: MESSAGES_ERROR.generic });
+  const { status, code, message } = getExceptionMessage(err);
+
+  if (status >= 500) {
+    logger.error({ err }, err.message);
+  }
+
+  res.status(status).json({ code, message });
 };

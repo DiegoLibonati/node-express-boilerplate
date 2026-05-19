@@ -1,7 +1,7 @@
 import type { Note } from "@/types/models";
-import type { NoteCreatePayload, NoteUpdatePayload } from "@/types/payloads";
+import type { NoteCreateBody, NoteUpdateBody } from "@/types/zod";
 
-import { NotFoundError } from "@/helpers/not_found_error.helper";
+import { NotFoundError } from "@/errors/not_found.error";
 
 let notes: Note[] = [];
 let nextId = 1;
@@ -16,18 +16,24 @@ export const NoteDAO = {
 
   findById: (id: number): Note | null => notes.find((n) => n.id === id) ?? null,
 
-  create: (data: NoteCreatePayload): Note => {
+  create: (data: NoteCreateBody): Note => {
     const now = new Date();
     const note: Note = { id: nextId++, ...data, createdAt: now, updatedAt: now };
     notes.push(note);
     return note;
   },
 
-  updateById: (id: number, data: NoteUpdatePayload): Note => {
+  updateById: (id: number, data: NoteUpdateBody): Note => {
     const index = notes.findIndex((n) => n.id === id);
     if (index === -1) throw new NotFoundError();
-    notes[index] = { ...notes[index]!, ...data, updatedAt: new Date() };
-    return notes[index];
+    const updated: Note = {
+      ...notes[index]!,
+      ...(data.title !== undefined ? { title: data.title } : {}),
+      ...(data.content !== undefined ? { content: data.content } : {}),
+      updatedAt: new Date(),
+    };
+    notes[index] = updated;
+    return updated;
   },
 
   deleteById: (id: number): Note => {

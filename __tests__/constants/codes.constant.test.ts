@@ -8,6 +8,15 @@ describe("codes.constant", () => {
       expect(CODES_SUCCESS.createNote).toBe("SUCCESS_CREATE_NOTE");
       expect(CODES_SUCCESS.updateNote).toBe("SUCCESS_UPDATE_NOTE");
       expect(CODES_SUCCESS.deleteNote).toBe("SUCCESS_DELETE_NOTE");
+      expect(CODES_SUCCESS.healthLive).toBe("SUCCESS_HEALTH_LIVE");
+      expect(CODES_SUCCESS.healthReady).toBe("SUCCESS_HEALTH_READY");
+    });
+
+    it("should not have duplicate values", () => {
+      const values: string[] = Object.values(CODES_SUCCESS);
+      const unique = new Set<string>(values);
+
+      expect(unique.size).toBe(values.length);
     });
   });
 
@@ -18,6 +27,13 @@ describe("codes.constant", () => {
       expect(CODES_NOT.validId).toBe("NOT_VALID_ID");
       expect(CODES_NOT.validTitle).toBe("NOT_VALID_TITLE");
       expect(CODES_NOT.validContent).toBe("NOT_VALID_CONTENT");
+    });
+
+    it("should not have duplicate values", () => {
+      const values: string[] = Object.values(CODES_NOT);
+      const unique = new Set<string>(values);
+
+      expect(unique.size).toBe(values.length);
     });
   });
 

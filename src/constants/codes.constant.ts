@@ -6,6 +6,8 @@ export const CODES_SUCCESS: CodesSuccess = {
   createNote: "SUCCESS_CREATE_NOTE",
   updateNote: "SUCCESS_UPDATE_NOTE",
   deleteNote: "SUCCESS_DELETE_NOTE",
+  healthLive: "SUCCESS_HEALTH_LIVE",
+  healthReady: "SUCCESS_HEALTH_READY",
 };
 
 export const CODES_NOT: CodesNot = {

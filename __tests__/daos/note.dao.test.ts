@@ -1,9 +1,9 @@
 import type { Note } from "@/types/models";
-import type { NoteCreatePayload, NoteUpdatePayload } from "@/types/payloads";
-
-import { NotFoundError } from "@/helpers/not_found_error.helper";
+import type { NoteCreateBody, NoteUpdateBody } from "@/types/zod";
 
 import { NoteDAO } from "@/daos/note.dao";
+
+import { NotFoundError } from "@/errors/not_found.error";
 
 describe("note.dao", () => {
   describe("findMany", () => {
@@ -57,7 +57,7 @@ describe("note.dao", () => {
 
   describe("create", () => {
     it("should create a note with the provided title and content", () => {
-      const payload: NoteCreatePayload = { title: "My Note", content: "My Content" };
+      const payload: NoteCreateBody = { title: "My Note", content: "My Content" };
 
       const result: Note = NoteDAO.create(payload);
 
@@ -88,24 +88,57 @@ describe("note.dao", () => {
       expect(result.updatedAt).toBeInstanceOf(Date);
       expect(result.createdAt.getTime()).toBe(result.updatedAt.getTime());
     });
+
+    it("should persist the note so findById returns it", () => {
+      const created: Note = NoteDAO.create({ title: "Persisted", content: "Body" });
+
+      expect(NoteDAO.findById(created.id)).toEqual(created);
+    });
   });
 
   describe("updateById", () => {
     it("should throw NotFoundError when note does not exist", () => {
-      const payload: NoteUpdatePayload = { title: "Updated" };
+      const payload: NoteUpdateBody = { title: "Updated" };
 
       expect(() => NoteDAO.updateById(999, payload)).toThrow(NotFoundError);
     });
 
     it("should update the title and return the updated note", () => {
       const created: Note = NoteDAO.create({ title: "Original", content: "Content" });
-      const payload: NoteUpdatePayload = { title: "Updated Title" };
+      const payload: NoteUpdateBody = { title: "Updated Title" };
 
       const result: Note = NoteDAO.updateById(created.id, payload);
 
       expect(result.id).toBe(created.id);
       expect(result.title).toBe("Updated Title");
       expect(result.content).toBe("Content");
+    });
+
+    it("should update the content and return the updated note", () => {
+      const created: Note = NoteDAO.create({ title: "Title", content: "Original content" });
+
+      const result: Note = NoteDAO.updateById(created.id, { content: "New content" });
+
+      expect(result.id).toBe(created.id);
+      expect(result.title).toBe("Title");
+      expect(result.content).toBe("New content");
+    });
+
+    it("should update both fields at once", () => {
+      const created: Note = NoteDAO.create({ title: "Old", content: "Old" });
+
+      const result: Note = NoteDAO.updateById(created.id, { title: "New", content: "New" });
+
+      expect(result.title).toBe("New");
+      expect(result.content).toBe("New");
+    });
+
+    it("should leave the title unchanged when only content is provided", () => {
+      const created: Note = NoteDAO.create({ title: "Keep", content: "Old" });
+
+      const result: Note = NoteDAO.updateById(created.id, { content: "New" });
+
+      expect(result.title).toBe("Keep");
     });
 
     it("should update updatedAt while preserving createdAt", () => {
@@ -118,6 +151,14 @@ describe("note.dao", () => {
 
       expect(result.createdAt.getTime()).toBe(created.createdAt.getTime());
       expect(result.updatedAt.getTime()).toBeGreaterThan(created.updatedAt.getTime());
+    });
+
+    it("should persist the changes so findById returns the updated note", () => {
+      const created: Note = NoteDAO.create({ title: "Original", content: "Content" });
+
+      NoteDAO.updateById(created.id, { title: "Updated" });
+
+      expect(NoteDAO.findById(created.id)?.title).toBe("Updated");
     });
   });
 
@@ -141,6 +182,16 @@ describe("note.dao", () => {
       NoteDAO.deleteById(created.id);
 
       expect(NoteDAO.findById(created.id)).toBeNull();
+    });
+
+    it("should not affect other notes", () => {
+      const keep: Note = NoteDAO.create({ title: "Keep", content: "Stay" });
+      const remove: Note = NoteDAO.create({ title: "Remove", content: "Bye" });
+
+      NoteDAO.deleteById(remove.id);
+
+      expect(NoteDAO.findById(keep.id)).not.toBeNull();
+      expect(NoteDAO.findMany()).toHaveLength(1);
     });
   });
 });

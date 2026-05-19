@@ -1,5 +1,5 @@
 import type { Note } from "@/types/models";
-import type { NoteCreatePayload, NoteUpdatePayload } from "@/types/payloads";
+import type { NoteCreateBody, NoteUpdateBody } from "@/types/zod";
 
 import { NoteDAO } from "@/daos/note.dao";
 
@@ -12,11 +12,11 @@ export const NoteService = {
     return NoteDAO.findById(id);
   },
 
-  createNote: (data: NoteCreatePayload): Note => {
+  createNote: (data: NoteCreateBody): Note => {
     return NoteDAO.create(data);
   },
 
-  updateNote: (id: number, data: NoteUpdatePayload): Note => {
+  updateNote: (id: number, data: NoteUpdateBody): Note => {
     return NoteDAO.updateById(id, data);
   },
 

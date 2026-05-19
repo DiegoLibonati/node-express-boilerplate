@@ -8,6 +8,8 @@ describe("messages.constant", () => {
       expect(MESSAGES_SUCCESS.createNote).toBe("Note successfully created.");
       expect(MESSAGES_SUCCESS.updateNote).toBe("Note successfully updated.");
       expect(MESSAGES_SUCCESS.deleteNote).toBe("Note successfully deleted.");
+      expect(MESSAGES_SUCCESS.healthLive).toBe("Service is alive.");
+      expect(MESSAGES_SUCCESS.healthReady).toBe("Service is ready.");
     });
   });
 

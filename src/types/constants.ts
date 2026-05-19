@@ -4,6 +4,8 @@ export interface CodesSuccess {
   createNote: "SUCCESS_CREATE_NOTE";
   updateNote: "SUCCESS_UPDATE_NOTE";
   deleteNote: "SUCCESS_DELETE_NOTE";
+  healthLive: "SUCCESS_HEALTH_LIVE";
+  healthReady: "SUCCESS_HEALTH_READY";
 }
 
 export interface CodesNot {
@@ -24,6 +26,8 @@ export interface MessagesSuccess {
   createNote: string;
   updateNote: string;
   deleteNote: string;
+  healthLive: string;
+  healthReady: string;
 }
 
 export interface MessagesNot {

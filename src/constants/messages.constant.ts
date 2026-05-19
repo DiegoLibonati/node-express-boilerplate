@@ -6,6 +6,8 @@ export const MESSAGES_SUCCESS: MessagesSuccess = {
   createNote: "Note successfully created.",
   updateNote: "Note successfully updated.",
   deleteNote: "Note successfully deleted.",
+  healthLive: "Service is alive.",
+  healthReady: "Service is ready.",
 };
 
 export const MESSAGES_NOT: MessagesNot = {

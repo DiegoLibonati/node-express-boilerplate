@@ -1,16 +1,14 @@
-import type { Request, Response } from "express";
-import type { NoteUpdatePayload } from "@/types/payloads";
+import type { NextFunction, Request, Response } from "express";
 
 import { NoteService } from "@/services/note.service";
 
-import { getExceptionMessage } from "@/helpers/get_exception_message.helper";
-import { isInteger } from "@/helpers/is_integer.helper";
+import { NotFoundError } from "@/errors/not_found.error";
 
-import { CODES_NOT, CODES_SUCCESS } from "@/constants/codes.constant";
-import { MESSAGES_NOT, MESSAGES_SUCCESS } from "@/constants/messages.constant";
+import { CODES_SUCCESS } from "@/constants/codes.constant";
+import { MESSAGES_SUCCESS } from "@/constants/messages.constant";
 
 export const NoteController = {
-  getAll: (_req: Request, res: Response): void => {
+  getAll: (_req: Request, res: Response, next: NextFunction): void => {
     try {
       const notes = NoteService.getAllNotes();
       res.status(200).json({
@@ -19,123 +17,65 @@ export const NoteController = {
         data: { notes },
       });
     } catch (e) {
-      const { status, ...response } = getExceptionMessage(e);
-      res.status(status).json(response);
+      next(e);
     }
   },
 
-  getById: (req: Request<{ id: string }>, res: Response): void => {
+  getById: (req: Request<{ id: string }>, res: Response, next: NextFunction): void => {
     try {
-      const { id } = req.params;
-
-      if (!isInteger(id)) {
-        res
-          .status(400)
-          .json({ code: CODES_NOT.validId, message: MESSAGES_NOT.validId, data: null });
-        return;
-      }
-
-      const note = NoteService.getNoteById(Number(id));
-
-      if (!note) {
-        res
-          .status(404)
-          .json({ code: CODES_NOT.foundNote, message: MESSAGES_NOT.foundNote, data: null });
-        return;
-      }
-
+      const note = NoteService.getNoteById(Number(req.params.id));
+      if (!note) throw new NotFoundError();
       res.status(200).json({
         code: CODES_SUCCESS.getNote,
         message: MESSAGES_SUCCESS.getNote,
         data: { note },
       });
     } catch (e) {
-      const { status, ...response } = getExceptionMessage(e);
-      res.status(status).json(response);
+      next(e);
     }
   },
 
-  create: (req: Request, res: Response): void => {
+  create: (req: Request, res: Response, next: NextFunction): void => {
     try {
-      const { title, content } = req.body as { title?: string; content?: string };
-
-      if (!title?.trim()) {
-        res
-          .status(400)
-          .json({ code: CODES_NOT.validTitle, message: MESSAGES_NOT.validTitle, data: null });
-        return;
-      }
-
-      if (!content?.trim()) {
-        res
-          .status(400)
-          .json({ code: CODES_NOT.validContent, message: MESSAGES_NOT.validContent, data: null });
-        return;
-      }
-
-      const note = NoteService.createNote({ title: title.trim(), content: content.trim() });
-
+      const { title, content } = req.body as { title: string; content: string };
+      const note = NoteService.createNote({ title, content });
       res.status(201).json({
         code: CODES_SUCCESS.createNote,
         message: MESSAGES_SUCCESS.createNote,
         data: { note },
       });
     } catch (e) {
-      const { status, ...response } = getExceptionMessage(e);
-      res.status(status).json(response);
+      next(e);
     }
   },
 
-  update: (req: Request<{ id: string }>, res: Response): void => {
+  update: (req: Request<{ id: string }>, res: Response, next: NextFunction): void => {
     try {
-      const { id } = req.params;
       const { title, content } = req.body as { title?: string; content?: string };
-
-      if (!isInteger(id)) {
-        res
-          .status(400)
-          .json({ code: CODES_NOT.validId, message: MESSAGES_NOT.validId, data: null });
-        return;
-      }
-
-      const data: NoteUpdatePayload = {};
-      if (title !== undefined) data.title = title.trim();
-      if (content !== undefined) data.content = content.trim();
-
-      const note = NoteService.updateNote(Number(id), data);
-
+      const data: { title?: string; content?: string } = {};
+      if (title !== undefined) data.title = title;
+      if (content !== undefined) data.content = content;
+      const note = NoteService.updateNote(Number(req.params.id), data);
       res.status(200).json({
         code: CODES_SUCCESS.updateNote,
         message: MESSAGES_SUCCESS.updateNote,
         data: { note },
       });
     } catch (e) {
-      const { status, ...response } = getExceptionMessage(e);
-      res.status(status).json(response);
+      next(e);
     }
   },
 
-  delete: (req: Request<{ id: string }>, res: Response): void => {
+  delete: (req: Request<{ id: string }>, res: Response, next: NextFunction): void => {
     try {
-      const { id } = req.params;
-
-      if (!isInteger(id)) {
-        res
-          .status(400)
-          .json({ code: CODES_NOT.validId, message: MESSAGES_NOT.validId, data: null });
-        return;
-      }
-
-      NoteService.deleteNote(Number(id));
-
+      NoteService.deleteNote(Number(req.params.id));
       res.status(200).json({
         code: CODES_SUCCESS.deleteNote,
         message: MESSAGES_SUCCESS.deleteNote,
         data: null,
       });
     } catch (e) {
-      const { status, ...response } = getExceptionMessage(e);
-      res.status(status).json(response);
+      next(e);
     }
   },
 };

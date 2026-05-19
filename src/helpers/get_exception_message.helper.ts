@@ -1,13 +1,13 @@
 import type { ExceptionInfo } from "@/types/helpers";
 
-import { NotFoundError } from "@/helpers/not_found_error.helper";
+import { AppError } from "@/errors/app.error";
 
-import { CODES_ERROR, CODES_NOT } from "@/constants/codes.constant";
-import { MESSAGES_ERROR, MESSAGES_NOT } from "@/constants/messages.constant";
+import { CODES_ERROR } from "@/constants/codes.constant";
+import { MESSAGES_ERROR } from "@/constants/messages.constant";
 
 export const getExceptionMessage = (e: unknown): ExceptionInfo => {
-  if (e instanceof NotFoundError) {
-    return { status: 404, code: CODES_NOT.foundNote, message: MESSAGES_NOT.foundNote };
+  if (e instanceof AppError) {
+    return { status: e.status, code: e.code, message: e.message };
   }
 
   return { status: 500, code: CODES_ERROR.generic, message: MESSAGES_ERROR.generic };
