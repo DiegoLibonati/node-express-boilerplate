@@ -6,7 +6,7 @@ import { validate } from "@/middlewares/validate.middleware";
 
 import { BadRequestError } from "@/errors/bad_request.error";
 
-import { CODES_NOT } from "@/constants/codes.constant";
+import { CODES_ERROR, CODES_NOT } from "@/constants/codes.constant";
 import { MESSAGES_NOT } from "@/constants/messages.constant";
 
 const buildReq = (overrides: Partial<Request> = {}): Request => {
@@ -120,7 +120,7 @@ describe("validate.middleware", () => {
 
       const error = next.mock.calls[0]?.[0] as BadRequestError;
       expect(error).toBeInstanceOf(BadRequestError);
-      expect(error.code).toBe("ERROR_VALIDATION");
+      expect(error.code).toBe(CODES_ERROR.validation);
     });
 
     it("should pass through unknown (non-Zod) errors to next without wrapping", () => {

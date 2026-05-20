@@ -20,4 +20,5 @@ export const CODES_NOT: CodesNot = {
 
 export const CODES_ERROR: CodesError = {
   generic: "ERROR_GENERIC",
+  validation: "ERROR_VALIDATION",
 };

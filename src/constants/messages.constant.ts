@@ -20,4 +20,5 @@ export const MESSAGES_NOT: MessagesNot = {
 
 export const MESSAGES_ERROR: MessagesError = {
   generic: "Something went wrong.",
+  validation: "Validation failed.",
 };

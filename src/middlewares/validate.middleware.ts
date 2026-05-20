@@ -3,8 +3,8 @@ import { ZodError } from "zod";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import type { ValidateConfig } from "@/types/app";
 
-import { CODES_NOT } from "@/constants/codes.constant";
-import { MESSAGES_NOT } from "@/constants/messages.constant";
+import { CODES_ERROR, CODES_NOT } from "@/constants/codes.constant";
+import { MESSAGES_ERROR, MESSAGES_NOT } from "@/constants/messages.constant";
 
 import { BadRequestError } from "@/errors/bad_request.error";
 
@@ -19,8 +19,8 @@ const toBadRequest = (err: ZodError): BadRequestError => {
   const field = issue?.path[0];
   const fieldKey = typeof field === "string" ? field : "";
   const mapped = FIELD_TO_ERROR[fieldKey];
-  const code = mapped?.code ?? "ERROR_VALIDATION";
-  const message = mapped?.message ?? issue?.message ?? "Validation failed";
+  const code = mapped?.code ?? CODES_ERROR.validation;
+  const message = mapped?.message ?? issue?.message ?? MESSAGES_ERROR.validation;
   return new BadRequestError(code, message);
 };
 
