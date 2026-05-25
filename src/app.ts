@@ -18,6 +18,8 @@ const app: express.Application = express();
 
 app.disable("x-powered-by");
 
+app.use(requestId);
+app.use(rateLimiter);
 app.use(helmet() as RequestHandler);
 app.use(
   pinoHttp({
@@ -32,7 +34,5 @@ app.use("/api/v1", routes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
-app.use(requestId);
-app.use(rateLimiter);
 
 export default app;
