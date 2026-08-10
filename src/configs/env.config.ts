@@ -2,6 +2,10 @@ import { z } from "zod";
 
 import type { Envs } from "@/types/env";
 
+import { loadEnvFiles } from "@/configs/dotenv.config";
+
+export const loadedEnvFiles = loadEnvFiles();
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   PORT: z.coerce.number().int().positive().default(5050),

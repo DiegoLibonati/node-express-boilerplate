@@ -24,6 +24,12 @@ describe("env.config", () => {
     expect(typeof envs).toBe("object");
   });
 
+  it("should expose the list of env files loaded before parsing", () => {
+    const mod = jest.requireActual<{ loadedEnvFiles: string[] }>("@/configs/env.config");
+
+    expect(Array.isArray(mod.loadedEnvFiles)).toBe(true);
+  });
+
   describe("ENV", () => {
     it("should use the NODE_ENV value when set to a valid value", () => {
       process.env.NODE_ENV = "production";

@@ -16,9 +16,9 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 
 - **Express 4 + TypeScript 5** — strict typing enforced throughout, with `NodeNext` module resolution for clean CommonJS output and path aliases (`@/`) for readable imports.
 - **In-memory store** — the DAO layer uses a module-level array as the data store. It includes a `Note` model as a reference CRUD implementation. Replace the store with any database or ORM of your choice — the layers above it stay unchanged.
-- **Docker-first workflow** — separate `Dockerfile.development` and `Dockerfile.production`, plus `dev.docker-compose.yml`. The dev container mounts the source with hot-reload; the production image runs a compiled, pruned build with a `HEALTHCHECK`.
+- **Docker optional, not mandatory** — separate `Dockerfile.development` and `Dockerfile.production` plus Compose files for the container workflow, and a `dotenv` loader with cascading `.env` files for running straight on the host with `npm run dev` / `npm start`. Both paths read the same variables; neither is required by the other.
 - **Layered architecture** — clear separation between DAOs (data access), Services (business logic), Controllers (HTTP handling), and Routes. Each layer has a single responsibility and depends only on the layer below it.
-- **Zod-validated environment configuration** — environment variables are parsed and coerced through a Zod schema at startup, then composed into a typed `Envs` object. Invalid or missing variables crash the process with a structured error message before the HTTP server binds.
+- **Zod-validated environment configuration** — `.env` files are loaded by `dotenv` (never overriding real environment variables), then parsed and coerced through a Zod schema at startup and composed into a typed `Envs` object. Invalid variables crash the process with a structured error message before the HTTP server binds.
 - **Zod request validation** — `validate` middleware parses `params`, `query`, and `body` against per-route Zod schemas. Failures are mapped to `BadRequestError` with field-aware response codes.
 - **Typed error hierarchy** — `AppError` base class plus `BadRequestError`, `UnauthorizedError`, `NotFoundError`, and `ConflictError`. Thrown anywhere in the stack and converted to consistent HTTP responses by the centralized error handler.
 - **Security middlewares** — `helmet` for hardened response headers, `express-rate-limit` for opt-in IP throttling, `x-powered-by` disabled, and per-request `x-request-id` propagation for traceability.
@@ -31,8 +31,8 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 **How to use it:**
 
 1. Clone the repository and install dependencies.
-2. Copy `.env.example` to `.env` and fill in your values.
-3. Start the stack with Docker Compose.
+2. Copy `.env.example` to `.env` and fill in your values (optional — every key has a default).
+3. Start it the way you prefer: Docker Compose, or `npm run dev` directly on your machine.
 4. Replace the `Note` model, DAO, service, controller, and routes with your own domain logic — the folder structure, middleware setup, error handling, and tooling stay exactly as they are.
 
 The next sections walk through the technology stack, the local setup, the runtime configuration, and finally the path to a deployable production build.
@@ -49,6 +49,7 @@ The next sections walk through the technology stack, the local setup, the runtim
 ### Dependencies
 
 ```
+"dotenv": "^17.4.2"
 "express": "^4.21.0"
 "express-rate-limit": "^8.5.2"
 "helmet": "^8.1.0"
@@ -84,6 +85,29 @@ The next sections walk through the technology stack, the local setup, the runtim
 
 ## Getting Started
 
+Two supported ways to run the API — pick one, they are interchangeable and read the same variables. In both cases the API is available at `http://localhost:5050`.
+
+### Option A — Local (no Docker)
+
+> **Requirements:** Node.js `>=22` (the version in `.nvmrc`; `engine-strict` is on, so `npm install` fails on older versions).
+
+1. Clone the repository.
+2. Navigate to the project folder.
+3. Install dependencies: `npm install`
+4. Copy `.env.example` to `.env` and fill in the values (see [Env Keys](#env-keys)). Optional — every key has a default.
+5. Start the dev server: `npm run dev`
+
+`.env` is loaded automatically by `dotenv` at startup (see [Environment files](#environment-files)); no extra flag or wrapper is needed. The same applies to `npm start` after `npm run build`.
+
+| Command              | Description                      |
+| -------------------- | -------------------------------- |
+| `npm run dev`        | Start development server (watch) |
+| `npm run build`      | Compile TypeScript into `dist/`  |
+| `npm start`          | Run the compiled server          |
+| `npm run type-check` | Run TypeScript type checking     |
+
+### Option B — Docker
+
 > **Requirements:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) must be installed.
 
 1. Clone the repository.
@@ -92,14 +116,7 @@ The next sections walk through the technology stack, the local setup, the runtim
 4. Build the Docker image: `docker-compose -f dev.docker-compose.yml build --no-cache`
 5. Start the container: `docker-compose -f dev.docker-compose.yml up --force-recreate`
 
-The API will be available at `http://localhost:5050`.
-
-If you prefer to run the dev server outside Docker:
-
-| Command              | Description                  |
-| -------------------- | ---------------------------- |
-| `npm run dev`        | Start development server     |
-| `npm run type-check` | Run TypeScript type checking |
+Compose injects `.env` through `env_file`, so the variables reach the container as real environment variables and take precedence over any file inside the image. The file is declared with `required: false`, so the stack also starts without a `.env` (needs Docker Compose `>=2.24`) and falls back to the schema defaults.
 
 ### Pre-Commit for Development
 
@@ -150,7 +167,7 @@ Pre-commit hooks that automatically:
 
 ## Env Keys
 
-Variables consumed by `src/configs/env.config.ts`. They are parsed and coerced through a Zod schema at startup — invalid values cause the process to throw with a structured error message before the HTTP server binds.
+Variables consumed by `src/configs/env.config.ts`. They are loaded from the [environment files](#environment-files) below, then parsed and coerced through a Zod schema at startup — invalid values cause the process to throw with a structured error message before the HTTP server binds. Every key is optional and falls back to the default listed below.
 
 | Key                    | Description                                                                                     |
 | ---------------------- | ----------------------------------------------------------------------------------------------- |
@@ -182,6 +199,35 @@ CHOKIDAR_USEPOLLING=true
 CHOKIDAR_INTERVAL=100
 ```
 
+### Environment files
+
+`src/configs/dotenv.config.ts` runs before the Zod schema is evaluated and populates `process.env` from `.env` files found in the process working directory. Files are read from the highest precedence to the lowest, and a key is only applied when it is still unset:
+
+| Precedence | File                    | Purpose                                                        |
+| ---------- | ----------------------- | -------------------------------------------------------------- |
+| 1          | _real environment_      | Docker `env_file`, CI secrets, shell exports — always win.     |
+| 2          | `.env.<NODE_ENV>.local` | Machine-specific overrides for one environment. Git-ignored.   |
+| 3          | `.env.local`            | Machine-specific overrides for every environment. Git-ignored. |
+| 4          | `.env.<NODE_ENV>`       | Shared per-environment values.                                 |
+| 5          | `.env`                  | Shared defaults for every environment.                         |
+
+Rules worth knowing:
+
+- **Real environment variables always win.** Nothing in a file ever overwrites a variable that is already set, which is what keeps the Docker, CI, and hosted-platform workflows intact — there, no `.env` file exists at all and the loader simply finds nothing.
+- **`NODE_ENV` selects the mode.** It is read from the process first, then from `.env.local` / `.env`, and defaults to `development`.
+- **Tests are isolated.** Under `NODE_ENV=test` only `.env.test.local` and `.env.test` are read, so a developer's local `.env` can never change test results.
+- **Missing files are not an error.** With no file at all, the Zod defaults apply and the process starts normally.
+- **Nothing is committed.** `.gitignore` excludes every `.env*` file except `.env.example`, and `.dockerignore` keeps them out of images.
+
+The startup log line lists which files were actually applied:
+
+```
+INFO: Server running in development mode on http://localhost:5050
+    env: "development"
+    baseUrl: "http://localhost:5050"
+    envFiles: [".env"]
+```
+
 ## Project Structure
 
 ```
@@ -197,6 +243,7 @@ node-ts-express-api-boilerplate/
 │   └── jest.setup.ts                   # Per-test setup (timeout + store reset)
 ├── src/
 │   ├── configs/
+│   │   ├── dotenv.config.ts            # Cascading .env file loader (never overrides real env)
 │   │   ├── env.config.ts               # Zod-validated environment composition
 │   │   └── logger.config.ts            # Pino logger (pretty in dev, JSON in prod)
 │   ├── constants/
@@ -261,7 +308,7 @@ node-ts-express-api-boilerplate/
 | `.github/`         | GitHub Actions workflows (CI pipeline)                                |
 | `.vscode/`         | Recommended editor extensions                                         |
 | `__tests__/`       | Test files plus global Jest setup hooks                               |
-| `src/configs/`     | Environment validation, composition, and logger setup                 |
+| `src/configs/`     | Env file loading, validation, composition, and logger setup           |
 | `src/constants/`   | Centralized response codes and messages                               |
 | `src/controllers/` | One controller per resource; maps HTTP requests to service calls      |
 | `src/daos/`        | Data access layer; in-memory store lives here                         |
@@ -300,7 +347,7 @@ To replace the in-memory store with a real database, only the DAO layer needs to
 
 ### Fail-Fast Initialization
 
-Environment variables are parsed at startup through a Zod schema and composed into a typed `Envs` object. If any value is missing or fails coercion, the process throws immediately — listing every offending key — before the HTTP server binds. This prevents silent misconfiguration from reaching production.
+`.env` files are loaded first (see [Environment files](#environment-files)), without ever overriding a variable that the real environment already provides. The resulting `process.env` is then parsed at startup through a Zod schema and composed into a typed `Envs` object. If any value fails coercion, the process throws immediately — listing every offending key — before the HTTP server binds. This prevents silent misconfiguration from reaching production.
 
 ### Request Validation
 
@@ -463,23 +510,34 @@ Pre-flight checklist before deploying:
 
 Once those pass, configure the runtime environment and distribute the image.
 
-### Configure `.env` for production
+### Configure the environment for production
 
-Production reads from `.env` via `env_file` in `prod.docker-compose.yml`. Make sure the following are set with production values before deploying:
+Whichever way you deploy, these are the values to set:
 
 ```bash
 NODE_ENV=production
 PORT=5050
 ```
 
-See [Env Keys](#env-keys) for the full variable reference.
+- **With Docker:** `prod.docker-compose.yml` injects `.env` through `env_file`, so the values arrive as real environment variables.
+- **Without Docker:** put them in `.env` (or `.env.production`) next to the process, or export them from your host, systemd unit, or hosting platform — real environment variables take precedence over any file.
+
+See [Env Keys](#env-keys) for the full variable reference and [Environment files](#environment-files) for the resolution order.
 
 ### Distribute
 
-Build and start the production stack:
+Build and start the production stack with Docker:
 
 ```bash
 docker-compose -f prod.docker-compose.yml up --build --force-recreate
+```
+
+Or run the compiled build directly on the host:
+
+```bash
+npm ci
+npm run build
+NODE_ENV=production npm start
 ```
 
 ## Known Issues

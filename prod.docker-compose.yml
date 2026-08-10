@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile.production
     restart: always
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     ports:
       - 5050:5050

@@ -1,4 +1,4 @@
-import { envs } from "@/configs/env.config";
+import { envs, loadedEnvFiles } from "@/configs/env.config";
 import { logger } from "@/configs/logger.config";
 
 import app from "@/app";
@@ -9,7 +9,10 @@ const BASE_URL = envs.BASE_URL;
 
 const onInit = (): void => {
   const baseUrl = ENV === "development" ? `http://localhost:${PORT}` : BASE_URL;
-  logger.info({ env: ENV, baseUrl }, `Server running in ${ENV} mode on ${baseUrl}`);
+  logger.info(
+    { env: ENV, baseUrl, envFiles: loadedEnvFiles },
+    `Server running in ${ENV} mode on ${baseUrl}`
+  );
 };
 
 const server = app.listen(PORT, onInit);

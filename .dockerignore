@@ -11,6 +11,7 @@ coverage/
 
 # Environment files (injected at runtime via env_file or environment)
 .env
+.env.*
 
 # Docker files (not needed inside the image)
 *.docker-compose.yml
