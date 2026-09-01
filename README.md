@@ -8,7 +8,7 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 
 ## Description
 
-**node-express-boilerplate** is a production-ready starting point for building REST APIs with Node.js, Express, and TypeScript. It is not a framework or a library — it is the foundation you clone once and stop rebuilding from scratch on every new backend project.
+**Node Express Boilerplate** is a production-ready starting point for building REST APIs with Node.js, Express, and TypeScript. It is not a framework or a library — it is the foundation you clone once and stop rebuilding from scratch on every new backend project.
 
 This repository is the REST + in-memory base. The same architecture also ships as three specialized variants — PostgreSQL + Prisma, Socket.IO, and GraphQL. See [Other versions](#other-versions).
 
