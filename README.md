@@ -8,7 +8,7 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 
 ## Description
 
-**node-express-ts-boilerplate** is a production-ready starting point for building REST APIs with Node.js, Express, and TypeScript. It is not a framework or a library — it is the foundation you clone once and stop rebuilding from scratch on every new backend project.
+**node-express-boilerplate** is a production-ready starting point for building REST APIs with Node.js, Express, and TypeScript. It is not a framework or a library — it is the foundation you clone once and stop rebuilding from scratch on every new backend project.
 
 This repository is the REST + in-memory base. The same architecture also ships as three specialized variants — PostgreSQL + Prisma, Socket.IO, and GraphQL. See [Other versions](#other-versions).
 
@@ -233,7 +233,7 @@ INFO: Server running in development mode on http://localhost:5050
 ## Project Structure
 
 ```
-node-express-ts-boilerplate/
+node-express-boilerplate/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                      # Lint, audit, test, and Docker build pipeline
@@ -550,14 +550,14 @@ None at the moment.
 
 This repository is the REST API with an in-memory store. Three specialized variants share the same architecture, tooling, and folder structure:
 
-| Variant       | What it adds                                                                                                   | Repository                                                                                                      |
-| ------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **SQL**       | PostgreSQL via Prisma ORM, Docker Compose database services, migrations, and a Prisma-connected DAO layer      | [`node-express-ts-sql-boilerplate`](https://github.com/DiegoLibonati/node-express-ts-sql-boilerplate)           |
-| **Socket.IO** | Socket.IO v4 with typed events, an in-memory store, and a sockets → services → store layer for real-time apps  | [`node-express-ts-socketio-boilerplate`](https://github.com/DiegoLibonati/node-express-ts-socketio-boilerplate) |
-| **GraphQL**   | GraphQL endpoint at `/api/v1/graphql` (`graphql-http`), GraphiQL playground, and code-first schema + resolvers | [`node-express-ts-graphql-boilerplate`](https://github.com/DiegoLibonati/node-express-ts-graphql-boilerplate)   |
+| Variant       | What it adds                                                                                                   | Repository                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **SQL**       | PostgreSQL via Prisma ORM, Docker Compose database services, migrations, and a Prisma-connected DAO layer      | [`node-express-sql-boilerplate`](https://github.com/DiegoLibonati/node-express-sql-boilerplate)           |
+| **Socket.IO** | Socket.IO v4 with typed events, an in-memory store, and a sockets → services → store layer for real-time apps  | [`node-express-socketio-boilerplate`](https://github.com/DiegoLibonati/node-express-socketio-boilerplate) |
+| **GraphQL**   | GraphQL endpoint at `/api/v1/graphql` (`graphql-http`), GraphiQL playground, and code-first schema + resolvers | [`node-express-graphql-boilerplate`](https://github.com/DiegoLibonati/node-express-graphql-boilerplate)   |
 
 Pick the variant that matches the transport or persistence you need; everything else (layered architecture, Zod env, Pino, Helmet, Jest, Docker, CI) stays the same.
 
 ## Portfolio Link
 
-[`https://www.diegolibonati.com.ar/#/project/node-express-ts-boilerplate`](https://www.diegolibonati.com.ar/#/project/node-express-ts-boilerplate)
+[`https://www.diegolibonati.com.ar/#/project/node-express-boilerplate`](https://www.diegolibonati.com.ar/#/project/node-express-boilerplate)

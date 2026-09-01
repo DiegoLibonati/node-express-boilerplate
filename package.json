@@ -1,5 +1,5 @@
 {
-  "name": "node-express-ts-boilerplate",
+  "name": "node-express-boilerplate",
   "version": "0.0.1",
   "engines": {
     "node": ">=22.0.0"
