@@ -10,6 +10,8 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 
 **node-express-ts-boilerplate** is a production-ready starting point for building REST APIs with Node.js, Express, and TypeScript. It is not a framework or a library — it is the foundation you clone once and stop rebuilding from scratch on every new backend project.
 
+This repository is the REST + in-memory base. The same architecture also ships as three specialized variants — PostgreSQL + Prisma, Socket.IO, and GraphQL. See [Other versions](#other-versions).
+
 **The problem it solves:** every Node.js + Express + TypeScript project starts with the same repetitive decisions — how to structure folders, how to wire up middleware, where to put types, how to handle environment variables safely, and how to configure linting and formatting so they actually block bad code before it reaches the repo. This boilerplate answers all of those decisions upfront, with a consistent, lightweight architecture that scales to real applications without introducing unnecessary complexity.
 
 **What it includes:**
@@ -544,13 +546,17 @@ NODE_ENV=production npm start
 
 None at the moment.
 
-## PostgreSQL + Prisma version
+## Other versions
 
-If you need a version of this boilerplate backed by a real database, check out the SQL variant:
+This repository is the REST API with an in-memory store. Three specialized variants share the same architecture, tooling, and folder structure:
 
-[`node-ts-express-sql-api-boilerplate`](https://github.com/DiegoLibonati/node-ts-express-sql-api-boilerplate)
+| Variant       | What it adds                                                                                                   | Repository                                                                                                      |
+| ------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **SQL**       | PostgreSQL via Prisma ORM, Docker Compose database services, migrations, and a Prisma-connected DAO layer      | [`node-express-ts-sql-boilerplate`](https://github.com/DiegoLibonati/node-express-ts-sql-boilerplate)           |
+| **Socket.IO** | Socket.IO v4 with typed events, an in-memory store, and a sockets → services → store layer for real-time apps  | [`node-express-ts-socketio-boilerplate`](https://github.com/DiegoLibonati/node-express-ts-socketio-boilerplate) |
+| **GraphQL**   | GraphQL endpoint at `/api/v1/graphql` (`graphql-http`), GraphiQL playground, and code-first schema + resolvers | [`node-express-ts-graphql-boilerplate`](https://github.com/DiegoLibonati/node-express-ts-graphql-boilerplate)   |
 
-It includes everything in this boilerplate plus PostgreSQL via Prisma ORM, Docker Compose database services, migrations, and a Prisma-connected DAO layer — same architecture, same tooling, same folder structure.
+Pick the variant that matches the transport or persistence you need; everything else (layered architecture, Zod env, Pino, Helmet, Jest, Docker, CI) stays the same.
 
 ## Portfolio Link
 
