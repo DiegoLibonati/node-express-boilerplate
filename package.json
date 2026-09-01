@@ -1,10 +1,10 @@
 {
-  "name": "node-ts-express-api-boilerplate",
+  "name": "node-express-ts-boilerplate",
   "version": "0.0.1",
   "engines": {
     "node": ">=22.0.0"
   },
-  "description": "Node Ts Express Api Boilerplate is a production-ready starting point for building REST APIs with Node.js, Express, and TypeScript.",
+  "description": "Production-ready Node.js + Express + TypeScript REST API boilerplate.",
   "author": {
     "name": "Diego Libonati",
     "email": "diego.libonati1998@gmail.com"
